@@ -1,0 +1,17 @@
+# Build files
+/build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+__pycache__/
+*.obj
+*.o
+*.elf
+
+# Visual Studio
+.vs/
+
+# Windows
+Thumbs.db
+Desktop.ini
+.directory.vscode/
