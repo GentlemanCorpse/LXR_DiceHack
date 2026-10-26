@@ -354,7 +354,7 @@ lcd_clear();
 lcd_string("LXR DiceHack");
 //goto 2nd line
 lcd_setcursor(0,2);
-lcd_string("DICE FW 1.5");
+lcd_string("DICE FW ");
 lcd_string(FIRMWARE_VERSION);
 #endif
 

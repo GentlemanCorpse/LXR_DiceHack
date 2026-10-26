@@ -2936,8 +2936,8 @@ void menu_vibeRandomizeOsc(uint8_t voice)
 	vibeRangeParam(fine[voice], 0, 127);
 	vibeRangeParam(pwm[voice], 0, voice == 0 ? 0 : 127);
 	switch (voice) {
-	case 0: VIBE_CHOICES(wave[voice], 0, 1, 2, 3); break;
-	case 1: VIBE_CHOICES(wave[voice], 0, 1, 3, 5); break;
+	case 0: VIBE_CHOICES(wave[voice], 0); break;
+	case 1: VIBE_CHOICES(wave[voice], 0, 1); break;
 	case 2: VIBE_CHOICES(wave[voice], 0, 1, 2, 3, 5); break;
 	case 3:
 		VIBE_CHOICES(wave[voice], 4, 0, 1);
@@ -2974,10 +2974,10 @@ void menu_vibeRandomizeAeg(uint8_t voice)
 	static const uint16_t atk[6] = { PAR_VELOA1,PAR_VELOA2,PAR_VELOA3,PAR_VELOA4,PAR_VELOA5,PAR_VELOA6 };
 	static const uint16_t dec[6] = { PAR_VELOD1,PAR_VELOD2,PAR_VELOD3,PAR_VELOD4,PAR_VELOD5,PAR_VELOD6_CLOSED };
 	static const uint16_t slope[6] = { PAR_VOL_SLOPE1,PAR_VOL_SLOPE2,PAR_VOL_SLOPE3,PAR_VOL_SLOPE4,PAR_VOL_SLOPE5,PAR_VOL_SLOPE6 };
-	static const uint8_t atkMax[6] = { 20,30,20,10,0,0 };
-	static const uint8_t decMax[6] = { 50,40,70,20,40,40 };
-	static const uint8_t slopeMin[6] = { 0,0,0,0,5,5 };
-	static const uint8_t slopeMax[6] = { 100,127,20,10,5,5 };
+	static const uint8_t atkMax[6] = { 20,5,20,10,0,0 };
+	static const uint8_t decMax[6] = { 50,15,70,20,40,40 };
+	static const uint8_t slopeMin[6] = { 0,20,0,0,5,5 };
+	static const uint8_t slopeMax[6] = { 100,60,20,10,5,5 };
 	vibeRangeParam(atk[voice], 0, atkMax[voice]);
 	vibeRangeParam(dec[voice], 0, decMax[voice]);
 	vibeRangeParam(slope[voice], slopeMin[voice], slopeMax[voice]);
@@ -2998,8 +2998,8 @@ void menu_vibeRandomizeMod(uint8_t voice)
 		static const uint8_t decMax[4] = { 50,100,0,10 };
 		static const uint8_t slpMin[4] = { 10,0,0,0 };
 		static const uint8_t slpMax[4] = { 15,100,127,20 };
-		static const uint8_t amtMin[4] = { 50,0,0,0 };
-		static const uint8_t amtMax[4] = { 65,20,0,80 };
+		static const uint8_t amtMin[4] = { 25,0,0,0 };
+		static const uint8_t amtMax[4] = { 40,20,0,80 };
 		vibeRangeParam((uint16_t)(PAR_MOD_EG1 + voice), decMin[voice], decMax[voice]);
 		vibeRangeParam((uint16_t)(PAR_PITCH_SLOPE1 + voice), slpMin[voice], slpMax[voice]);
 		vibeRangeParam((uint16_t)(PAR_MODAMNT1 + voice), amtMin[voice], amtMax[voice]);
@@ -3049,8 +3049,8 @@ void menu_vibeRandomizeFm(uint8_t voice)
 void menu_vibeRandomizeClick(uint8_t voice)
 {
 	if (voice >= 6) return;
-	vibeRangeParam((uint16_t)(PAR_TRANS1_VOL + voice), 0, 127);
-	vibeRangeParam((uint16_t)(PAR_TRANS1_FREQ + voice), 0, 127);
+	vibeRangeParam((uint16_t)(PAR_TRANS1_VOL + voice), 0, 5);
+	vibeRangeParam((uint16_t)(PAR_TRANS1_FREQ + voice), 0, 64);
 	// Transient menu: Hat is index 8.
 	if (voice == 5) vibeSetSoundParameter(PAR_TRANS6_WAVE, 8);
 	else vibeRangeParam((uint16_t)(PAR_TRANS1_WAVE + voice), 0, 13);
