@@ -253,10 +253,11 @@ const Name valueNames[NUM_NAMES] =
 		{SHORT_P3, CAT_FX, LONG_P3},/*TEXT_FX_P3*/
 		{SHORT_P4, CAT_FX, LONG_P4},/*TEXT_FX_P4*/
 		{SHORT_KCM, CAT_GLOBAL, LONG_PATTERN_MODE},/*TEXT_AUTO_SWITCH_KIT*/
-		{SHORT_DICE_PAT, CAT_EUKLID, LONG_PATTERN_MODE},
-		{SHORT_DICE_VEL, CAT_EUKLID, LONG_VELOCITY},
-		{SHORT_DICE_OCT, CAT_EUKLID, LONG_NOTE},
-		{SHORT_DICE_INIT, CAT_EUKLID, LONG_NOTE},
+		{ SHORT_DICE_PAT, CAT_EUKLID, LONG_PATTERN_MODE },
+		{ SHORT_DICE_FRE, CAT_EUKLID, LONG_PATTERN_MODE },
+		{ SHORT_DICE_VEL, CAT_EUKLID, LONG_VELOCITY },
+		{ SHORT_DICE_OCT, CAT_EUKLID, LONG_NOTE },
+		{ SHORT_DICE_INIT, CAT_EUKLID, LONG_NOTE },
 
 
 };
@@ -573,7 +574,8 @@ const enum Datatypes PROGMEM parameter_dtypes[NUM_PARAMS] = {
 	/*PAR_MIDI_NOTE6*/		DTYPE_NOTE_NAME,
 	/*PAR_MIDI_NOTE7*/		DTYPE_NOTE_NAME,
 	/*PAR_PATTERN_MODE*/ DTYPE_MENU | (MENU_PAT_MODE << 8),
-	/* DiceHack Euclidean toggles */ DTYPE_ON_OFF, DTYPE_ON_OFF, DTYPE_ON_OFF, DTYPE_ON_OFF,
+	/* DiceHack Euclidean controls */
+	DTYPE_ON_OFF, DTYPE_0B100, DTYPE_ON_OFF, DTYPE_ON_OFF, DTYPE_ON_OFF,
 };
 
 
@@ -761,6 +763,7 @@ void menu_init()
 	activeParameters[PAR_EUKLID_STEPS] = 16;
 	activeParameters[PAR_EUKLID_ROTATION] = 0;
 	activeParameters[PAR_DICE_PAT] = 1;
+	activeParameters[PAR_DICE_FRE] = 0;
 	activeParameters[PAR_DICE_VEL] = 0;
 	activeParameters[PAR_DICE_OCT] = 0;
 	activeParameters[PAR_DICE_INIT] = 0;
@@ -1423,7 +1426,8 @@ static uint8_t checkScrollSign(uint8_t activePage, uint8_t activeParameter)
 	//**GMENU show '*' when both left and right movement are possible in the global settings menu
 	// show > or < as appropriate
 #if 1
-	if (menu_activePage == MENU_MIDI_PAGE) {
+	if ((menu_activePage == MENU_MIDI_PAGE) ||
+		(menu_activePage == EUKLID_PAGE)) {
 		if (is2ndPage) {
 			//if we are on 2nd screen, and there are more sub-pages after this show "*" to signify both ways are available
 			if ((activePage < NUM_SUB_PAGES - 1) && (pgm_read_byte(&menuPages[MENU_MIDI_PAGE][activePage + 1].top1) != TEXT_EMPTY))
@@ -3328,7 +3332,9 @@ checkvalid:
 
 			}
 			else if (activeParameter == 8) { // moved past end of 2nd sub-page
-				if ((menu_activePage == MENU_MIDI_PAGE) || (menu_activePage == SEQ_PAGE)) { // in global menu, we can move to next sub-page
+				if ((menu_activePage == MENU_MIDI_PAGE) ||
+					(menu_activePage == SEQ_PAGE) ||
+					(menu_activePage == EUKLID_PAGE)) { // in global menu, we can move to next sub-page
 
 					activeParameter = 0; // set to par 0 of next sub page
 					activePage++; // and change page
@@ -3344,7 +3350,9 @@ checkvalid:
 
 			}
 			else if (activeParameter == -1) { // if we went past 0
-				if ((menu_activePage == MENU_MIDI_PAGE) || (menu_activePage == SEQ_PAGE)) { // in global menu, we can move to previous sub-page
+				if ((menu_activePage == MENU_MIDI_PAGE) ||
+					(menu_activePage == SEQ_PAGE) ||
+					(menu_activePage == EUKLID_PAGE)) { // in global menu, we can move to previous sub-page
 
 					activeParameter = 7; // PERF returns to last control on first page
 					activePage--; // and change page
@@ -3448,14 +3456,18 @@ void menu_switchSubPage(uint8_t subPageNr, uint8_t toggle)
 			// toggle to next if possible
 			if (has2ndPage(activePage))
 				activeParameter = 4;
-			else if ((menu_activePage == MENU_MIDI_PAGE) || (menu_activePage == SEQ_PAGE)) { // special case for global - wrap around to first
+			else if ((menu_activePage == MENU_MIDI_PAGE) ||
+				(menu_activePage == SEQ_PAGE) ||
+				(menu_activePage == EUKLID_PAGE)) { // special case for global - wrap around to first
 				activePage = 0;
 				activeParameter = 0;
 			}
 		}
 		else { // we are on 2nd screen
 
-			if ((menu_activePage == MENU_MIDI_PAGE) || (menu_activePage == SEQ_PAGE)) {
+			if ((menu_activePage == MENU_MIDI_PAGE) ||
+				(menu_activePage == SEQ_PAGE) ||
+				(menu_activePage == EUKLID_PAGE)) {
 				// in global mode, we move to next page if possible (or wrap to first)
 				if (activePage < NUM_SUB_PAGES - 1 &&
 					pgm_read_byte(&menuPages[menu_activePage][activePage + 1].top1) != TEXT_EMPTY) {

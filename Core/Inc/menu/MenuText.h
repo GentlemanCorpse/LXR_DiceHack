@@ -480,7 +480,7 @@ const char shortNames[][4] =
 	{"kcm"},
 	{"flm"},
 	{"shf"},
-	{"pat"}, {"vel"}, {"oct"}, {"ini"}
+	{ "pat" },{ "fre" },{ "vel" },{ "oct" },{ "ini" }
 };
 //-----------------------------------------------------------------
 // These correspond with the catNamesEnum in menu.h

@@ -406,10 +406,34 @@ static void buttonHandler_handleModeButtons(uint8_t mode) {
 		uint8_t track = menu_getActiveVoice();
 		uint8_t pattern = menu_getViewedPattern();
 
-		if (activeParameters[PAR_DICE_PAT]) {
-			euklid_randomize(track, pattern);
-			activeParameters[PAR_EUKLID_STEPS] = euklid_getSteps(track);
-			activeParameters[PAR_EUKLID_ROTATION] = euklid_getRotation(track);
+		if (activeParameters[PAR_DICE_PAT] &&
+			track < NUM_TRACKS && pattern < NUM_PATTERN && menu_activeBar < NUM_BARS) {
+			uint8_t frequency = (uint8_t)activeParameters[PAR_DICE_FRE];
+			if (frequency == 0) {
+				// Euclidean mode: 3-10 hits, limited by the current length.
+				uint8_t length = euklid_getLength(track);
+				if (length > 0) {
+					uint8_t maxHits = length < 10 ? length : 10;
+					uint8_t minHits = maxHits < 3 ? maxHits : 3;
+					uint8_t hits = minHits + (uint8_t)(GetRngValue() % (maxHits - minHits + 1));
+					uint8_t rotation = (uint8_t)(GetRngValue() % length);
+					euklid_setSteps(track, hits, pattern);
+					euklid_setRotation(track, rotation, pattern);
+					activeParameters[PAR_EUKLID_STEPS] = euklid_getSteps(track);
+					activeParameters[PAR_EUKLID_ROTATION] = euklid_getRotation(track);
+				}
+			}
+			else {
+				// Free mode: independent probability for each step of the visible bar.
+				// FRE=1: 1% chance; FRE=100: every step enabled.
+				for (uint8_t i = 0; i < 16; ++i) {
+					uint8_t stepNr = (uint8_t)(menu_activeBar * 16 + i);
+					uint8_t wanted = (uint8_t)((GetRngValue() % 100) < frequency);
+					uint8_t current = seq_isMainStepActive(track, stepNr, pattern) ? 1 : 0;
+					if (wanted != current)
+						seq_toggleMainStep(track, stepNr, pattern);
+				}
+			}
 		}
 
 		if ((activeParameters[PAR_DICE_VEL] || activeParameters[PAR_DICE_OCT]) &&
@@ -422,10 +446,10 @@ static void buttonHandler_handleModeButtons(uint8_t mode) {
 				if (activeParameters[PAR_DICE_VEL])
 					s->volume = (s->volume & STEP_ACTIVE_MASK) | (uint8_t)(25 + (GetRngValue() % 103));
 				if (activeParameters[PAR_DICE_OCT]) {
-					int16_t note = (int16_t)s->note;
-					int16_t candidate = note + (int16_t)((int32_t)(GetRngValue() % 5) - 2) * 12;
-					// Stay in the valid note range without changing pitch class.
-					if (candidate >= 0 && candidate <= 127) s->note = (uint8_t)candidate;
+					// Always randomize relative to C4 (MIDI 60).
+					// Possible notes: C2, C3, C4, C5.
+					int8_t octave = (int8_t)(GetRngValue() % 4) - 2;
+					s->note = (uint8_t)(60 + octave * 12);
 				}
 			}
 		}
@@ -700,7 +724,7 @@ static void buttonHandler_handleSelectButton(uint8_t buttonNr) {
 			else {
 				/* //moved to voice button
 				 //tell the sequencer the new active track
-				 //TODO muss nicht f�r button 8 gesendet werden
+				 //TODO muss nicht f r button 8 gesendet werden
 				 frontPanel_sendData(SEQ_CC,SEQ_SET_ACTIVE_TRACK,buttonNr);
 				 //request the parameters for the new track
 				 frontPanel_sendData(SEQ_CC,SEQ_REQUEST_EUKLID_PARAMS,buttonNr);

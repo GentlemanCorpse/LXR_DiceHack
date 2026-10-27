@@ -427,7 +427,7 @@ enum ParamEnums
 	PAR_PATTERN_MODE,
 
 	// DiceHack: Euclidean randomizer controls (append to preserve existing IDs)
-	PAR_DICE_PAT, PAR_DICE_VEL, PAR_DICE_OCT, PAR_DICE_INIT,
+	PAR_DICE_PAT, PAR_DICE_FRE, PAR_DICE_VEL, PAR_DICE_OCT, PAR_DICE_INIT,
 	NUM_PARAMS
 };
 

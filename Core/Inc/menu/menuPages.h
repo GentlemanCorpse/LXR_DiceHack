@@ -459,11 +459,23 @@ the parameter entries of this page are dynamically updated when a step in sequen
 	}
 },
 //---------------- Euklid pattern generator page ------------------------------
-/* shown when in 'mute mode' and the seq edit button is pressed. button toggles between modes*/
 {
+	// Internal subpage 0: visible screens 1 and 2
 	{
-		TEXT_PAT_LENGTH,	TEXT_NUM_STEPS,	TEXT_ROTATION,	TEXT_X_FADE,	TEXT_DICE_PAT, TEXT_DICE_VEL, TEXT_DICE_OCT, TEXT_DICE_INIT,
-		PAR_EUKLID_LENGTH,	PAR_EUKLID_STEPS,	PAR_EUKLID_ROTATION,	PAR_MORPH,		PAR_DICE_PAT, PAR_DICE_VEL, PAR_DICE_OCT, PAR_DICE_INIT
+		TEXT_PAT_LENGTH, TEXT_NUM_STEPS, TEXT_ROTATION, TEXT_X_FADE,
+		TEXT_DICE_PAT, TEXT_DICE_FRE, TEXT_DICE_VEL, TEXT_DICE_OCT,
+
+		PAR_EUKLID_LENGTH, PAR_EUKLID_STEPS, PAR_EUKLID_ROTATION, PAR_MORPH,
+		PAR_DICE_PAT, PAR_DICE_FRE, PAR_DICE_VEL, PAR_DICE_OCT
+	},
+
+	// Internal subpage 1: visible screen 3
+	{
+		TEXT_DICE_INIT, TEXT_EMPTY, TEXT_EMPTY, TEXT_EMPTY,
+		TEXT_EMPTY, TEXT_EMPTY, TEXT_EMPTY, TEXT_EMPTY,
+
+		PAR_DICE_INIT, PAR_NONE, PAR_NONE, PAR_NONE,
+		PAR_NONE, PAR_NONE, PAR_NONE, PAR_NONE
 	}
 },
 //---------------- pattern settings page ------------------------------
