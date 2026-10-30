@@ -1,3 +1,105 @@
+# LXR-02 DiceHack
+
+**Experimental custom firmware for the Erica Synths LXR-02 drum machine**, focused on musical randomization, fast sound exploration and generative sequencing.
+
+DiceHack builds on the original LXR-02 firmware. Its goal is to make it easier to discover useful variations without manually editing every parameter.
+
+> **Unofficial firmware.** This project is not affiliated with or endorsed by Erica Synths. Use at your own risk. Back up your kits and patterns before testing modified firmware.
+
+## What's changed?
+
+### 1. Musical, voice-specific sound randomization
+
+Instead of giving every parameter an unrestricted random value, DiceHack uses different ranges and choices for each of the six sound engines:
+
+- Drum 1
+- Drum 2
+- Drum 3
+- Snare
+- Clap / Cymbal
+- Closed / Open Hi-hat (shared sound engine)
+
+The randomizer covers these sound pages:
+
+| Page | Randomized parameters |
+| --- | --- |
+| **OSC** | Coarse and fine tuning, PWM, waveform; additional noise/mix settings on Snare |
+| **AEG** | Attack, decay, slope; selected repeat and open-hat decay settings |
+| **MOD** | Modulation envelope decay, pitch slope and modulation amount, where applicable |
+| **FM** | FM amount, frequency, waveform and selected oscillator/modulation settings |
+| **CLICK** | Transient volume, frequency and waveform |
+| **FILTER** | Cutoff, resonance, drive and filter type |
+
+Each voice has its own musical limits. For example, Drum 1 coarse tuning stays in a low range, Drum 3 has restricted FM amount, and the Hi-hat filter randomizer uses the **NCH (4)** and **UBP (5)** filter types.
+
+**LFO and MIX are not randomized** by the category shortcuts.
+
+### 2. New randomizer shortcuts
+
+While viewing a sound page (OSC, AEG, MOD, FM, CLICK or FILTER):
+
+| Shortcut | Action |
+| --- | --- |
+| **SHIFT + voice/track button** | Randomize the currently displayed sound category for that voice |
+| **SHIFT + KIT** | Randomize the currently displayed sound category across all six sound engines |
+| **SHIFT + MORPH** | Randomize OSC, AEG, FM, CLICK and FILTER for the currently selected voice |
+
+The **SHIFT + MORPH** action deliberately **does not randomize MOD**. MOD can still be randomized separately with **SHIFT + voice/track button** while on the MOD page.
+
+Closed and open Hi-hat buttons target the same sixth sound engine for category randomization.
+
+### 3. Euclidean / free-pattern randomization
+
+DiceHack adds options to the Euclidean workflow. While already on the Euclidean page, press **SHIFT + PERF** to generate a new pattern according to the DiceHack settings.
+
+- With **DICE PAT** enabled and **FRE = 0**, the shortcut randomizes the Euclidean hit count (normally 3–10, limited by sequence length) and rotation.
+- With **DICE PAT** enabled and **FRE = 1–100**, it instead randomizes the on/off state of each step in the visible 16-step bar, using FRE as the percentage chance of an active step.
+- **DICE VEL** optionally randomizes velocity on active steps.
+- **DICE OCT** optionally shifts active-step notes by octaves, while keeping them within the valid MIDI note range.
+
+The velocity and octave options can be used alongside the pattern randomization.
+
+### 4. Performance-page step probability
+
+The **PERF** page includes a probability control for quickly setting the probability of **all 16 steps in the currently visible bar** for the selected voice and pattern. This is a batch edit, not a global setting for every pattern or every bar.
+
+### 5. Velocity response after randomization
+
+The sound randomizer enables velocity-to-volume response for the selected voice, so randomized sounds can still respond to step velocity. The MOD randomizer additionally resets the velocity modulation destination to OFF.
+
+## Quick start
+
+1. Select a voice and open one of its sound pages (for example, **OSC**).
+2. Hold **SHIFT** and press that voice's track button to generate a new variation of just that page.
+3. Press **SHIFT + KIT** to apply the same category randomization across the six sound engines.
+4. Press **SHIFT + MORPH** to generate a broader variation of the currently selected voice, leaving MOD untouched.
+5. To experiment with patterns, open the Euclidean page, adjust **DICE PAT / FRE / VEL / OCT**, and press **SHIFT + PERF**.
+
+## Implementation notes
+
+The musical parameter ranges are implemented in `Core/Src/menu/menu.c`, in functions such as `menu_vibeRandomizeOsc()`, `menu_vibeRandomizeAeg()`, `menu_vibeRandomizeMod()`, `menu_vibeRandomizeFm()`, `menu_vibeRandomizeClick()` and `menu_vibeRandomizeFilter()`.
+
+The shortcut handling is implemented in the button-handler source. Building the project requires the **matching versions of all modified firmware source files**; replacing `menu.c` alone does not necessarily install every DiceHack feature.
+
+Some waveform index labels and FM mappings still need confirmation against the actual device and firmware definitions. This README describes the intended controls and the inspected source, **not a guarantee that every combination has been hardware-tested**.
+
+## Building and installing
+
+This is a source-code modification of the LXR-02 firmware, not a standalone application. Build it using the toolchain and CMake configuration required by the upstream firmware project. Only install a successfully built image after reviewing the changes and keeping a recovery path available.
+
+For upstream firmware documentation, hardware instructions and licensing information, refer to the original LXR-02 firmware repository. Preserve all applicable upstream copyright and license notices when distributing modified source or binaries.
+
+## Project status
+
+**Experimental / work in progress.** DiceHack is a personal firmware modification and may change as new features are tested.
+
+
+
+
+
+
+
+
 # LXR V2 firmware (desktop, STM32F765VG)
 
 Firmware for the LXR V2 desktop drum machine: an STM32F765 (Cortex-M7, 216 MHz) running the
