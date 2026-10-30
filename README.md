@@ -3,6 +3,7 @@
 **Experimental custom firmware for the Erica Synths LXR-02 drum machine**, focused on musical randomization, fast sound exploration and generative sequencing.
 
 DiceHack builds on the original LXR-02 firmware. Its goal is to make it easier to discover useful variations without manually editing every parameter.
+Build with help of ChatGPT.
 
 > **Unofficial firmware.** This project is not affiliated with or endorsed by Erica Synths. Use at your own risk. Back up your kits and patterns before testing modified firmware.
 
