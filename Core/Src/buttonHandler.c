@@ -448,7 +448,7 @@ static void buttonHandler_handleModeButtons(uint8_t mode) {
 				if (activeParameters[PAR_DICE_OCT]) {
 					// Always randomize relative to C4 (MIDI 60).
 					// Possible notes: C2, C3, C4, C5.
-					int8_t octave = (int8_t)(GetRngValue() % 4) - 2;
+					int8_t octave = (int8_t)(GetRngValue() % 5) - 2;
 					s->note = (uint8_t)(60 + octave * 12);
 				}
 			}

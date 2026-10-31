@@ -2933,8 +2933,8 @@ void menu_vibeRandomizeOsc(uint8_t voice)
 	static const uint16_t fine[6] = { PAR_FINE1,PAR_FINE2,PAR_FINE3,PAR_FINE4,PAR_FINE5,PAR_FINE6 };
 	static const uint16_t pwm[6] = { PAR_PWM_1,PAR_PWM_2,PAR_PWM_3,PAR_PWM_4,PAR_PWM_5,PAR_PWM_6 };
 	static const uint16_t wave[6] = { PAR_OSC_WAVE_DRUM1,PAR_OSC_WAVE_DRUM2,PAR_OSC_WAVE_DRUM3,PAR_OSC_WAVE_SNARE,PAR_WAVE1_CYM,PAR_WAVE1_HH };
-	static const int8_t lo[6] = { -40,-30,-30,-30,0,67 };
-	static const int8_t hi[6] = { -10,-10,-5,67,67,67 };
+	static const int8_t lo[6] = { -40,-30,-30,-60,0,67 };
+	static const int8_t hi[6] = { -30,-10,-5,-20,67,67 };
 	// The displayed coarse maximum is +67 on cymbal; raw maximum is 127.
 	vibePitchParam(coarse[voice], lo[voice], hi[voice]);
 	vibeRangeParam(fine[voice], 0, (voice == 3 || voice == 5) ? 0 : 127);
@@ -2945,7 +2945,7 @@ void menu_vibeRandomizeOsc(uint8_t voice)
 	case 2: VIBE_CHOICES(wave[voice], 0, 1, 2, 5); break; // SIN, TRI, SAW, REC (verify wave index labels)
 	case 3:
 		VIBE_CHOICES(wave[voice], 4, 3); // NOISE or PWM (confirm waveform indices on device)
-		vibeSetSoundParameter(PAR_NOISE_FREQ1, 80);
+		vibeRangeParam(PAR_NOISE_FREQ1, 70, 127);
 		vibeSetSoundParameter(PAR_MIX1, 80);
 		break;
 	case 4:
@@ -2961,13 +2961,12 @@ void menu_vibeRandomizeOsc(uint8_t voice)
 void menu_vibeRandomizeAll(uint8_t voice)
 {
 	if (voice >= 6) return;
-	// Ensure every newly randomized voice responds to per-step velocity,
-	// even though SHIFT+MORPH deliberately skips the MOD randomizer.
+	// Ensure every newly randomized voice responds to per-step velocity.
 	vibeSetSoundParameter((uint16_t)(PAR_VELO_MOD_AMT_1 + voice), 127);
 	vibeSetSoundParameter((uint16_t)(PAR_VOLUME_MOD_ON_OFF1 + voice), 1);
 	menu_vibeRandomizeOsc(voice);
 	menu_vibeRandomizeAeg(voice);
-	// MOD deliberately excluded from SHIFT + MORPH.
+	menu_vibeRandomizeMod(voice);
 	menu_vibeRandomizeFm(voice);
 	menu_vibeRandomizeClick(voice);
 	menu_vibeRandomizeFilter(voice);
@@ -2978,18 +2977,20 @@ void menu_vibeRandomizeAeg(uint8_t voice)
 	static const uint16_t atk[6] = { PAR_VELOA1,PAR_VELOA2,PAR_VELOA3,PAR_VELOA4,PAR_VELOA5,PAR_VELOA6 };
 	static const uint16_t dec[6] = { PAR_VELOD1,PAR_VELOD2,PAR_VELOD3,PAR_VELOD4,PAR_VELOD5,PAR_VELOD6_CLOSED };
 	static const uint16_t slope[6] = { PAR_VOL_SLOPE1,PAR_VOL_SLOPE2,PAR_VOL_SLOPE3,PAR_VOL_SLOPE4,PAR_VOL_SLOPE5,PAR_VOL_SLOPE6 };
-	static const uint8_t atkMax[6] = { 20,5,20,10,0,0 };
+	static const uint8_t atkMax[6] = { 10,5,20,0,0,10 };
 	static const uint8_t decMax[6] = { 50,15,20,20,40,40 };
-	static const uint8_t slopeMin[6] = { 0,20,5,0,5,5 };
-	static const uint8_t slopeMax[6] = { 100,60,10,10,5,5 };
-	vibeRangeParam(atk[voice], voice == 2 ? 5 : 0, atkMax[voice]);
-	vibeRangeParam(dec[voice], 0, decMax[voice]);
+	static const uint8_t slopeMin[6] = { 20,10,5,5,5,5 };
+	static const uint8_t slopeMax[6] = { 40,30,10,20,5,5 };
+	if (voice == 1) vibeSetSoundParameter(atk[voice], 5);
+	else vibeRangeParam(atk[voice], voice == 2 ? 5 : 0, atkMax[voice]);
+	if (voice != 5) vibeRangeParam(dec[voice], voice == 0 ? 12 : voice == 1 ? 10 : voice == 3 ? 5 : 0, voice == 0 ? 20 : voice == 1 ? 20 : decMax[voice]);
 	vibeRangeParam(slope[voice], slopeMin[voice], slopeMax[voice]);
 	if (voice == 3) vibeSetSoundParameter(PAR_REPEAT4, 0);
 	if (voice == 4) vibeRangeParam(PAR_REPEAT5, 0, 5);
 	if (voice == 5) {
-		// Both closed and open hat decay share the user's 0..40 rule.
-		vibeRangeParam(PAR_VELOD6_OPEN, 0, 40);
+		// Hi-hat D1 (closed) and D2 (open) fixed.
+		vibeSetSoundParameter(PAR_VELOD6_CLOSED, 5);
+		vibeSetSoundParameter(PAR_VELOD6_OPEN, 10);
 	}
 	preset_touchTimer(PRESET_KIT_TIMER);
 	menu_repaintAll();
@@ -2997,16 +2998,14 @@ void menu_vibeRandomizeAeg(uint8_t voice)
 void menu_vibeRandomizeMod(uint8_t voice)
 {
 	if (voice >= 6) return;
+	// One shared MOD rule for standalone randomization and SHIFT + MORPH.
+	// Drum voices 1-4 have these three MOD parameters.
 	if (voice < 4) {
-		static const uint8_t decMin[4] = { 30,0,0,0 };
-		static const uint8_t decMax[4] = { 50,100,20,10 };
-		static const uint8_t slpMin[4] = { 10,0,0,0 };
-		static const uint8_t slpMax[4] = { 15,100,20,20 };
-		static const uint8_t amtMin[4] = { 25,0,0,0 };
-		static const uint8_t amtMax[4] = { 40,20,40,80 };
-		vibeRangeParam((uint16_t)(PAR_MOD_EG1 + voice), decMin[voice], decMax[voice]);
-		vibeRangeParam((uint16_t)(PAR_PITCH_SLOPE1 + voice), slpMin[voice], slpMax[voice]);
-		vibeRangeParam((uint16_t)(PAR_MODAMNT1 + voice), amtMin[voice], amtMax[voice]);
+		if (voice == 3) vibeRangeParam(PAR_MOD_EG1 + voice, 50, 80);
+		else vibeSetSoundParameter((uint16_t)(PAR_MOD_EG1 + voice), voice == 1 ? 0 : 70);
+		vibeSetSoundParameter((uint16_t)(PAR_PITCH_SLOPE1 + voice), voice == 1 ? 0 : voice == 3 ? 5 : 10);
+		if (voice == 3) vibeRangeParam(PAR_MODAMNT1 + voice, 40, 80);
+		else vibeSetSoundParameter((uint16_t)(PAR_MODAMNT1 + voice), voice == 1 ? 0 : 50);
 	}
 	// Keep velocity-to-volume response enabled for the randomized voice.
 	// The velocity modulation destination remains OFF independently.
@@ -3033,7 +3032,7 @@ void menu_vibeRandomizeFm(uint8_t voice)
 		if (voice == 0) VIBE_CHOICES(PAR_MOD_WAVE_DRUM1, 0, 1, 5);
 		else if (voice == 1) vibeSetSoundParameter(PAR_MOD_WAVE_DRUM2, 0);
 		else VIBE_CHOICES(PAR_MOD_WAVE_DRUM3, 0, 1, 2, 3, 5);
-		vibeSetSoundParameter((uint16_t)(PAR_MIX_MOD_1 + voice), voice == 0 ? 0 : voice == 2 ? 1 : vibeRange(0, 1));
+		vibeSetSoundParameter((uint16_t)(PAR_MIX_MOD_1 + voice), voice == 0 || voice == 1 ? 0 : voice == 2 ? 1 : vibeRange(0, 1));
 	}
 	else if (voice == 4 || voice == 5) {
 		uint16_t f1 = voice == 4 ? PAR_MOD_OSC_F1_CYM : PAR_MOD_OSC_F1;
@@ -3064,17 +3063,17 @@ void menu_vibeRandomizeClick(uint8_t voice)
 void menu_vibeRandomizeFilter(uint8_t voice)
 {
 	if (voice >= 6) return;
-	static const uint8_t freqMin[6] = { 25,0,10,0,0,0 };
-	static const uint8_t freqMax[6] = { 127,127,40,0,127,127 };
+	static const uint8_t freqMin[6] = { 25,0,10,64,0,0 };
+	static const uint8_t freqMax[6] = { 127,127,40,100,127,127 };
 	vibeRangeParam((uint16_t)(PAR_FILTER_FREQ_1 + voice), freqMin[voice], freqMax[voice]);
-	vibeRangeParam((uint16_t)(PAR_RESO_1 + voice), 0, voice == 1 ? 90 : voice == 2 ? 100 : voice == 3 ? 0 : 127);
-	vibeRangeParam((uint16_t)(PAR_FILTER_DRIVE_1 + voice), 0, voice == 3 ? 0 : 127);
+	vibeRangeParam((uint16_t)(PAR_RESO_1 + voice), 0, voice == 1 ? 90 : voice == 2 ? 100 : voice == 3 ? 80 : 127);
+	vibeRangeParam((uint16_t)(PAR_FILTER_DRIVE_1 + voice), 0, voice == 3 ? 100 : 127);
 	switch (voice) {
 	case 0: case 1: VIBE_CHOICES((uint16_t)(PAR_FILTER_TYPE_1 + voice), 0, 6, 4, 5, 7); break;
 	case 2: VIBE_CHOICES(PAR_FILTER_TYPE_3, 0, 6, 1, 2, 4, 5, 7); break;
-	case 3: vibeSetSoundParameter(PAR_FILTER_TYPE_4, 7); break;
+	case 3: VIBE_CHOICES(PAR_FILTER_TYPE_4, 1, 4, 5, 6); break;
 	case 4: VIBE_CHOICES(PAR_FILTER_TYPE_5, 6, 7); break;
-	case 5: VIBE_CHOICES(PAR_FILTER_TYPE_6, 4, 5); break;
+	case 5: VIBE_CHOICES(PAR_FILTER_TYPE_6, 6, 7); break;
 	}
 }
 #undef VIBE_CHOICES

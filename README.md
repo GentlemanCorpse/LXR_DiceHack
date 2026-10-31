@@ -94,7 +94,69 @@ For upstream firmware documentation, hardware instructions and licensing informa
 
 **Experimental / work in progress.** DiceHack is a personal firmware modification and may change as new features are tested.
 
+# DiceHack – Patch Notes
+**October 31, 2026**
 
+### Randomizer Improvements
+
+Updated sound randomization ranges for Drum 1, Drum 2, Snare, and Hi-Hat to produce more controlled and musically useful results.
+
+### Drum 1
+**AEG**
+- ATK: 0–10
+- DEC: 12–20
+- SLP: 20–40
+
+### Drum 2
+**AEG**
+- ATK: Fixed at 5
+- DEC: 10–20
+- SLP: 10–30
+
+**MOD**
+- DEC, SLP, Amount: Fixed at 0
+
+**FM**
+- Mode: Always FM
+
+### Snare
+**OSC**
+- COA: −60 to −20
+- NOI: 70–127
+
+**AEG**
+- ATK, RPT: Fixed at 0
+- DEC: 5–20
+- SLP: 5–20
+
+**MOD**
+- DEC: 50–80
+- SLP: Fixed at 5
+- Amount: 40–80
+
+**FILTER**
+- FRQ: 64–100
+- RES: 0–80
+- TYPE: HP, NCH, PEK, LP2
+- DRV: 0–100
+
+### Hi-Hat
+**FILTER**
+- FRQ: 0–127
+- RES: 0–127
+- TYPE: OFF or LP2
+- DRV: 0–127
+
+**AEG**
+- D1: Fixed at 5
+- D2: Fixed at 10
+- ATK: 0–10
+
+### Affected Randomizer Behavior
+- **Individual voice randomization:** Uses the updated voice-specific parameter ranges.
+- **SHIFT + MORPH:** Global sound randomization applies the updated settings to the affected voices.
+- Fixed parameters are assigned their specified values instead of being randomized.
+- All other voices remain unchanged.
 
 
 
